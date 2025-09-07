@@ -3,7 +3,9 @@ from dash import Dash, dcc, Input, html, Output, callback
 from geopy.geocoders import Nominatim
 import openmeteo_requests 
 from retry_requests import retry
-import requests_cache
+import requests_cache 
+import requests
+
 
 
 dash.register_page(__name__, path = "/page1", name = "Weather Report")
@@ -13,10 +15,12 @@ dash.register_page(__name__, path = "/page1", name = "Weather Report")
 ## Allow users to convert from Farenheit to Celsius and vice versa
 
 
-##taken directly from the open-meteo API. Do we keep this here???
+##I think what this does is instantiate the openmeteo so instead of doing requests.get we use this...i think
 cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
 retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
 openmeteo = openmeteo_requests.Client(session = retry_session)
+
+
 
 ##setting parameters
 
@@ -68,8 +72,25 @@ layout = html.Div(
     style = {"backgroundColor":"#f1f1de"},
     children = 
     [
-        html.H1("Weather Report")
-    
+        html.H1("Weather Report"),
+        dcc.Loading(html.Div(id = "weather-report")),
+        html.Div
+        ([
+            
+            
+            html.Div
+            ([
+            "Input City: ",
+            dcc.Input(id = "inputCity", value = '', type = 'text', autoComplete=True)
+            ]),
+              
+            html.Div
+            ([
+                "Input Country: ",
+                dcc.Input(id = "inputCountry", value = "", type = "text", autoComplete=True)
+            ])
+                
+        ])
     ]
 )
 
