@@ -13,7 +13,7 @@ app.layout = html.Div([
             dbc.NavLink("Home", href="/", active="exact"),
             dbc.NavLink("Weather Info", href="/page1", active="exact")
         ],
-        bran = "Weather Report"
+        brand = "Weather Report"
     ),
     page_container
 ])
