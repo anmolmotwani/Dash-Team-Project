@@ -5,7 +5,14 @@ import openmeteo_requests
 from retry_requests import retry
 import requests_cache 
 import requests
+from datetime import date
 
+today = date.today()
+date_list = []
+for i in range(-5,8):
+    x = today.day + i
+    y = today.replace(day = x)
+    date_list.append(y)
 
 
 dash.register_page(__name__, path = "/page1", name = "Weather Report")
@@ -40,14 +47,14 @@ url = "https://api.open-meteo.com/v1/forecast"
 params = {
     "latitude":latDefault, #function to recieve latitude from input,
     "longitude":lonDefault, #function to recieve longitude from input,
-    "daily" : ["temperature_2m_max", "percipitation_sum"],
+    "daily" : ["temperature_2m_mean", "percipitation_sum"],
     ##add more
     "hourly":["temperature_2m","percipitation"],
     #This is where we will put in all the parameters for weather information we want to return to the user
     
     
     "current": ["temperature_2m","percipitation"],
-    ##add more
+    ##Poteential things we could add "is_day"
     
     
     
@@ -55,7 +62,7 @@ params = {
     "temperature_unit": temp_set,
     #user_input (default to fahrenheit) but allow user to change to celsius.
 
-    "past_days":7,
+    "past_days":5,
     
     "timezone" : "America/New_York" 
     #(Sets time zone to EST, our timezone)
@@ -91,8 +98,32 @@ layout = html.Div(
             ])
                 
         ])
-    ]
+    ],className="page1-grid"
 )
+
+##How ddo we get the website to display the informationn in an appropriate manner?
+## We need html and we should have a list.
+## have it be centered top it says the temperature and city
+##example
+
+
+##       86F
+##   Williamsburg
+## Percipitation: 10%
+
+
+##Slider with date ranges from 7 days past and 7 days future
+##slider default to today and have it say today in the center
+## dcc.Slider(0,14, marks ={i'{date_list[i]}' for i in range(14), value = 7})
+
+##Checkboxes for data
+##dcc.Checklist(['Percipitation', 'Humidity', 'Wind Speed'], 'Percipitation')
+##This would allow people to turn on or off certain pieces of data shown. Percipitaiton would be on by default
+
+##Radio for Celsius/Farenheit
+##dcc.RadioItems(['Celsius','Farenheit'], 'Farenheit')
+
+
 
 
 
@@ -100,5 +131,23 @@ layout = html.Div(
 @callback(
     Input("placeholder1","placeholder2")
 )
+
+
+##------------ Move to the top before initializing.-----------
+##------------ Combine starting_params and set_new_params by detecting if there was any input
+
 def lat_long(city,country):
-    return False
+    place_finder = Nominatim(user_agent="temp_user")
+    LL_return = place_finder.geocode({'city':city, 'country':country}, addressdetails=True)
+    return (LL_return.latitude, LL_return.longitude)
+def starting_params():
+    LL = lat_long("Williamsburg","USA")
+    
+    paramStart ={
+        "latitude":LL[0],
+        "longitude":LL[1],
+        
+    }
+    return
+def set_new_params():
+    return True
