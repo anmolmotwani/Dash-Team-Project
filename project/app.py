@@ -1,11 +1,15 @@
 from dash import Dash, html, dcc, page_container
 import dash_bootstrap_components as dbc
-
+from geopy.geocoders import Nominatim
 ##instantiate the app
 
 app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True, title = "Weather App")
 server = app.server
 
+
+
+        
+##App Layout--------------------------------------------------------------------------------------------------------------
 
 app.layout = html.Div([
     dbc.NavbarSimple(
@@ -17,6 +21,10 @@ app.layout = html.Div([
     ),
     page_container
 ])
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
