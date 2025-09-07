@@ -1,1 +1,11 @@
 Hello Team Project! 
+
+
+-Ideas: We are going to create a dash app that displays weather in a given area
+
+Use open-meteo to process the requests and give an overview of the weather. Allow the user to select from a range of 7 days in the past and 7 days in the future using "dcc.DatePickerSlider"
+
+Use dcc.Input to get a country and city from the user and use geopy api to get the latitude and longitude of that place
+(What do we do when someone puts in an answer with more than one viable location?)
+
+All
