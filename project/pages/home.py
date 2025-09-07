@@ -1,10 +1,12 @@
 import dash
-from dash import html
+from dash import html, dcc
 
 dash.register_page(__name__,path="/")
 
 layout = html.Div([
     ##Find out something interesting to put on the home page.
     html.H2("Welcome to our Weather Report"),
-    html.A("For the Band Weather Report, click here.", href = "https://youtube.com/playlist?list=PLP1lC0FnuI0K26N-Z_CtZmaP36Mg5NBdO&si=QeXag6kVPEZDrk9M")
+    dcc.Markdown('''
+                 Are you looking for the jazz fusion band [Weather Report?](https://youtu.be/SvhmaNlLgRM?si=i3Lmw-YP3J60uo6J&t=19)
+                 ''')
 ])

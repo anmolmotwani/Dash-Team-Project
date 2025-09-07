@@ -24,21 +24,37 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 ##latitude and longitude via Location (input a city/country/etc)
 ##farenheit vs celsius
 
+latDefault = 0
+lonDefault = 0
+
+##add in a way for users to change these values
+##have it remain unavailable until users input a city and country
+##if it detects a value of 0,0 wait until available inputs
+temp_set = "fahrenheit"
+
 url = "https://api.open-meteo.com/v1/forecast"
 params = {
-    #"latitude": function to recieve latitude from input
-    #"longitude": function to recieve longitude from input
-    #"daily" : ["temperature_2m_max", "percipitation_sum",...]
-    #"hourly":["temperature_2m","rain",...] This is where we will put in all the parameters for weather information
-    #we want to return to the user
-    #"current": ["temperature_2m","rain",...]
+    "latitude":latDefault, #function to recieve latitude from input,
+    "longitude":lonDefault, #function to recieve longitude from input,
+    "daily" : ["temperature_2m_max", "percipitation_sum"],
+    ##add more
+    "hourly":["temperature_2m","percipitation"],
+    #This is where we will put in all the parameters for weather information we want to return to the user
     
     
-    #"temperature_unit": user_input (default to fahrenheit) but allow user to change to celsius.
+    "current": ["temperature_2m","percipitation"],
+    ##add more
+    
+    
+    
+    
+    "temperature_unit": temp_set,
+    #user_input (default to fahrenheit) but allow user to change to celsius.
 
-    #"past_days":7
+    "past_days":7,
     
-    #"timezone" : "America/New_York" (Sets time zone to EST, our timezone)
+    "timezone" : "America/New_York" 
+    #(Sets time zone to EST, our timezone)
 }
 
 ##returned a two tiered dictionary of seperated by days? and conditions
@@ -49,9 +65,19 @@ responses = openmeteo.weather_api(url, params = params)
 ##response = responses[0]
 
 layout = html.Div(
-    
+    style = {"backgroundColor":"#f1f1de"},
+    children = 
     [
+        html.H1("Weather Report")
     
     ]
 )
 
+
+
+##we need to include callbacks somehow.
+@callback(
+    Input("placeholder1","placeholder2")
+)
+def lat_long(city,country):
+    return False
