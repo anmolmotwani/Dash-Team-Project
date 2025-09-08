@@ -57,7 +57,7 @@ layout = html.Div(
               
             
             
-        ])
+        ]),
         
         
         html.Div([
