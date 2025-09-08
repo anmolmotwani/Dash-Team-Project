@@ -14,6 +14,8 @@ for i in range(-5,8):
     y = today.replace(day = x)
     date_list.append(y)
 
+
+
 placeFinder = Nominatim(user_agent="my_user_agent")
 
 dash.register_page(__name__, path = "/page1", name = "Weather Report")
@@ -141,6 +143,12 @@ layout = html.Div(
 def setParams(inCity,inCountry,paramSet,tempSet):  
     latlon = placeFinder.geocode({'city':inCity, 'country':inCountry})
     
+    params = {
+        'latitude':latlon.latitude,
+        'longitude':latlon.longitude,
+        'hourly': ['temperature','relative_humidity_2m','rain']
+        
+    }
     return True
 
 #callback DateAdjustment
