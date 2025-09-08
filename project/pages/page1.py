@@ -48,8 +48,8 @@ url = "https://api.open-meteo.com/v1/forecast"
 ##----------------------------------------------We are going to want to replace this soon with the callback function where it reads the default vvalues first and then changes them
 ##---------------------------------------------- Delete this later
 params = {
-    "latitude": "placeholder", #------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED------------------------------------------------
-    "longitude": "placeholder", #---------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED-----------------------------------------------
+    "latitude": 37.8, #------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED------------------------------------------------
+    "longitude": 22.2, #---------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED-----------------------------------------------
     "daily" : ["temperature_2m_mean", "precipitation_sum"],
     ##add more
     "hourly":["temperature_2m","precipitation"],
@@ -98,13 +98,15 @@ layout = html.Div(
             
             ## allow user to switch between outputting in Fahrenheit and outputting in Celsius 
         ]),
+        html.Div(id="latLongOutput"),
         
         
-        html.Div([
-            dcc.RadioItems(['Fahrenheit','Celsius'],value = 'Fahrenheit',id="TempSetting")
-        ]) 
+
     ]
 )
+html.Div([
+            dcc.RadioItems(['Fahrenheit','Celsius'],value = 'Fahrenheit',id="TempSetting")
+        ]) 
 
 ##How ddo we get the website to display the informationn in an appropriate manner?
 ## We need html and we should have a list.
@@ -136,21 +138,25 @@ layout = html.Div(
 
 ##callback to retrieve latitude and longitude from city and country
 @callback(
+    Output('latLongOutput','children'),
     Input('inputCity','value'),
     Input('inputCountry','value')
 )
-def get_location(city,country):
-    result = placeFinder.geocode(city,country)
-    lat = result.latitude()
-    long = result.longitude()
-    return(lat,long)
+def get_location(city, country):
+    try:
+        result = placeFinder.geocode({"city":city,"country":country},timeout=5)
+        lat = result.latitude
+        lon = result.longitude
+        return f'lat is {lat} and lon is {lon}'
+    except requests.RequestException as e:
+        return html.Div(f"There was an error contacting API  "{str(e)})
 
 
 
 
 ##Callback to retrieve new parameters
 @callback(
-    
+    Input("Placeholder","Placeholder2")
 )
 
 def setParams():

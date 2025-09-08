@@ -31,7 +31,7 @@ params = initialParams()
 responses = openmeteo.weather_api(urlA, params)
 print(responses[0])
 
-hourly
+
 
 #-----------------Date Retrival Testing
     ###

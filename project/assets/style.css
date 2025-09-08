@@ -1,6 +1,47 @@
+
+/*default/home page */
 body{
     background-color: #eaebd3 !important;
     font-family: Arial, Helvetica, sans-serif
 }
+h2{
+    color:#2e3450;
+}
+
+p{
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+a{ 
+   display: inline-block;
+   margin: 18px;
+   text-decoration: none;
+   border: 2px solid white;
+   border-radius: 6px;
+   padding: 10px 20px;
+   background-color: #758fb3;
+   color: rgb(255, 255, 255);
+}
+a:hover{
+    background-color: #5e779b;
+}
+
+.homePage{
+    font-size: 10;
+}
+#WR{
+    font-size: 10;
+    a{
+        color:blue;
+        text-decoration: underline;
+        border: 0;
+        background-color: #00000000;
+        margin: auto;
+        padding: 0px 0px;
+        border-radius: 0;
+    }
+}
+/* Page 1 styles*/
 
 
