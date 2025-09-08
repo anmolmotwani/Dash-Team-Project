@@ -44,9 +44,12 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 temp_set = "fahrenheit"
 
 url = "https://api.open-meteo.com/v1/forecast"
+
+##----------------------------------------------We are going to want to replace this soon with the callback function where it reads the default vvalues first and then changes them
+##---------------------------------------------- Delete this later
 params = {
-    "latitude":latDefault, #function to recieve latitude from input,
-    "longitude":lonDefault, #function to recieve longitude from input,
+    "latitude": "placeholder", #------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED------------------------------------------------
+    "longitude": "placeholder", #---------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED-----------------------------------------------
     "daily" : ["temperature_2m_mean", "precipitation_sum"],
     ##add more
     "hourly":["temperature_2m","precipitation"],
@@ -72,6 +75,7 @@ params = {
 
 responses = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", params = params)
 
+##-----------------------------------------------------------------------------------------------------------------Above is to be deleted----------------
 
 ##response = responses[0]
 
