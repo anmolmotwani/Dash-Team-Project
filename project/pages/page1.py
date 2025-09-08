@@ -46,17 +46,18 @@ layout = html.Div(
         html.H1("Weather Report"),
         dcc.Loading(html.Div(id = "weather-report")),
         html.Div
-        (children=[
+        ([
             
             
-            html.Div(["Input Address: ",
-            dcc.Input(id = "inputAddress", value = "101 Ukrop Way Williamsburg", type = "text",debounce=5)]),
+            html.Div(["Input City: ",
+            dcc.Input(id = "inputCity", value = "Williamsburg", type = "text",debounce=2)]),
+            
+            html.Div(["Input Country: ",
+                      dcc.Input(id = "inputCountry", value = "USA", type="text",debounce=2)])
               
             
             
-            
-        ]),
-        html.Div(id="latlonOutput"),
+        ])
         
         
         html.Div([
@@ -73,6 +74,8 @@ layout = html.Div(
 
     ]
 )
+
+
 
 
 ##How ddo we get the website to display the informationn in an appropriate manner?
@@ -101,50 +104,43 @@ layout = html.Div(
 
 
 
-##we need to include callbacks somehow.
+
+##----------------------------------------------------------------------------------------Change to one callback-------------------
 
 ##callback to retrieve latitude and longitude from city and country
-@callback(
-    Output('latlonOutput','children'),
-    Input("inputAddress",'value')
+# @callback(
+#     Output('latlonOutput','children'),
+#     Input("inputAddress",'value')
           
-)
-def get_location(address):
-    try:
-        result = placeFinder.geocode(address, exactly_one=True)
-        latlonlist = []
-        latlonlist.append(result.latitude)
-        latlonlist.append(result.longitude)
-        if result != None:
-            return (latlonlist)
-        else:
-            return ("Error, location you entered was not available.")
-    except requests.RequestException as e:
-        return html.Div(f"There was an error contacting API  {str(e)}")
-
-
-
-
-
-
-
+# )
+# def get_location(address):
+#     try:
+#         result = placeFinder.geocode(address, exactly_one=True)
+#         latlonlist = []
+#         latlonlist.append(result.latitude)
+#         latlonlist.append(result.longitude)
+#         if result != None:
+#             return (latlonlist)
+#         else:
+#             return ("Error, location you entered was not available.")
+#     except requests.RequestException as e:
+#         return html.Div(f"There was an error contacting API  {str(e)}")
 ##Callback to retrieve new parameters
 @callback(
     Output('GetWeather', 'children'),
-    Input('latlonOutput','value'),
-    Input('paramSettings', 'parameters'),
-    Input("TempSetting", "Temprature")
+    
+    Input('inputCity','value'),
+    
+    Input('inputCountry','value'),
+    
+    Input('paramSettings', 'value'),
+    
+    Input("TempSetting", "value")
 )
 
-def setParams(latlonlist,parameterRequestList,temperatureStr): ##inputLat, inputLon, parameterRequestList, 
+def setParams(inCity,inCountry,paramSet,tempSet):  
+    latlon = placeFinder.geocode({'city':inCity, 'country':inCountry})
     
-    defdict = {
-    'latitude': latlonlist[0],
-    'longitude': lon[1],  # these are instantiated at the start with the default Williamsburg values
-    'hourly': parameterRequestList,
-    'temperature_unit': temperatureStr, 
-    }
-    responses = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", defdict)
-    return(responses)
+    return True
 
 #callback DateAdjustment
