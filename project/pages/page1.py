@@ -149,7 +149,7 @@ def get_location(city, country):
         lon = result.longitude
         return f'lat is {lat} and lon is {lon}'
     except requests.RequestException as e:
-        return html.Div(f"There was an error contacting API  "{str(e)})
+        return html.Div(f"There was an error contacting API  {str(e)}")
 
 
 
