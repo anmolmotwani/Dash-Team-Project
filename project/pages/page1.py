@@ -30,83 +30,50 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 
 
 
-##setting parameters
 
-##Variables we want to allow the user to control
-##latitude and longitude via Location (input a city/country/etc)
-##farenheit vs celsius
-
-
-
-##add in a way for users to change these values
-##have it remain unavailable until users input a city and country
-##if it detects a value of 0,0 wait until available inputs
 temp_set = "fahrenheit"
 
 url = "https://api.open-meteo.com/v1/forecast"
 
-##----------------------------------------------We are going to want to replace this soon with the callback function where it reads the default vvalues first and then changes them
-##---------------------------------------------- Delete this later
-params = {
-    "latitude": 37.8, #------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED------------------------------------------------
-    "longitude": 22.2, #---------------------------------------------------------------------------PLACEHOLDER TO BE CHANGED-----------------------------------------------
-    "daily" : ["temperature_2m_mean", "precipitation_sum"],
-    ##add more
-    "hourly":["temperature_2m","precipitation"],
-    #This is where we will put in all the parameters for weather information we want to return to the user
-    
-    
-    "current": ["temperature_2m","precipitation"],
-    ##Poteential things we could add "is_day"
-    
-    
-    
-    
-    "temperature_unit": temp_set,
-    #user_input (default to fahrenheit) but allow user to change to celsius.
 
-    "past_days":5,
-    
-    "timezone" : "America/New_York" 
-    #(Sets time zone to EST, our timezone)
-}
 
-##returned a two tiered dictionary of seperated by days? and conditions
 
-responses = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", params = params)
 
-##-----------------------------------------------------------------------------------------------------------------Above is to be deleted----------------
 
-##response = responses[0]
 
 layout = html.Div(
-    style = {"backgroundColor":"#f1f1de"},
-    children = 
     [
         html.H1("Weather Report"),
         dcc.Loading(html.Div(id = "weather-report")),
         html.Div
-        ([
+        (children=[
             
             
-            html.Div(["Input City: ",
-            dcc.Input(id = "inputCity", value = "Williamsburg", type = "text")]),
+            html.Div(["Input Address: ",
+            dcc.Input(id = "inputAddress", value = "101 Ukrop Way Williamsburg", type = "text",debounce=5)]),
               
-            html.Div([
-                "Input Country: ",
-                dcc.Input(id = "inputCountry", value = "Usa", type = "text") ])
             
-            ## allow user to switch between outputting in Fahrenheit and outputting in Celsius 
+            
+            
         ]),
-        html.Div(id="latLongOutput"),
+        html.Div(id="latlonOutput"),
         
+        
+        html.Div([
+            dcc.RadioItems(['Fahrenheit','Celsius'],value = 'Fahrenheit',id="TempSetting")
+        ]),
+        
+        
+        html.Div([
+            dcc.Checklist(['Temperature','Rain','Humidity'],['Temperature'], id = "paramSettings")#relative_humidity_2m is
+        ]),
+        
+        html.Div(id="GetWeather")
         
 
     ]
 )
-html.Div([
-            dcc.RadioItems(['Fahrenheit','Celsius'],value = 'Fahrenheit',id="TempSetting")
-        ]) 
+
 
 ##How ddo we get the website to display the informationn in an appropriate manner?
 ## We need html and we should have a list.
@@ -138,27 +105,46 @@ html.Div([
 
 ##callback to retrieve latitude and longitude from city and country
 @callback(
-    Output('latLongOutput','children'),
-    Input('inputCity','value'),
-    Input('inputCountry','value')
+    Output('latlonOutput','children'),
+    Input("inputAddress",'value')
+          
 )
-def get_location(city, country):
+def get_location(address):
     try:
-        result = placeFinder.geocode({"city":city,"country":country},timeout=5)
-        lat = result.latitude
-        lon = result.longitude
-        return f'lat is {lat} and lon is {lon}'
+        result = placeFinder.geocode(address, exactly_one=True)
+        latlonlist = []
+        latlonlist.append(result.latitude)
+        latlonlist.append(result.longitude)
+        if result != None:
+            return (latlonlist)
+        else:
+            return ("Error, location you entered was not available.")
     except requests.RequestException as e:
         return html.Div(f"There was an error contacting API  {str(e)}")
 
 
 
 
+
+
+
 ##Callback to retrieve new parameters
 @callback(
-    Input("Placeholder","Placeholder2")
+    Output('GetWeather', 'children'),
+    Input('latlonOutput','value'),
+    Input('paramSettings', 'parameters'),
+    Input("TempSetting", "Temprature")
 )
 
-def setParams():
+def setParams(latlonlist,parameterRequestList,temperatureStr): ##inputLat, inputLon, parameterRequestList, 
     
-    return()
+    defdict = {
+    'latitude': latlonlist[0],
+    'longitude': lon[1],  # these are instantiated at the start with the default Williamsburg values
+    'hourly': parameterRequestList,
+    'temperature_unit': temperatureStr, 
+    }
+    responses = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", defdict)
+    return(responses)
+
+#callback DateAdjustment
