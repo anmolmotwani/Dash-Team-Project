@@ -14,6 +14,7 @@ for i in range(-5,8):
     y = today.replace(day = x)
     date_list.append(y)
 
+placeFinder = Nominatim(user_agent="my_user_agent")
 
 dash.register_page(__name__, path = "/page1", name = "Weather Report")
 ## On this page we will have a layout for a user to first input the location
@@ -35,8 +36,7 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 ##latitude and longitude via Location (input a city/country/etc)
 ##farenheit vs celsius
 
-latDefault = 37.2757
-lonDefault = 76.7098
+
 
 ##add in a way for users to change these values
 ##have it remain unavailable until users input a city and country
@@ -85,20 +85,21 @@ layout = html.Div(
         ([
             
             
-            html.Div
-            ([
-            "Input City: ",
-            dcc.Input(id = "inputCity", value = "Williamsburg", type = "text")
-            ]),
+            html.Div(["Input City: ",
+            dcc.Input(id = "inputCity", value = "Williamsburg", type = "text")]),
               
-            html.Div
-            ([
+            html.Div([
                 "Input Country: ",
-                dcc.Input(id = "inputCountry", value = "Usa", type = "text")
-            ])
-                
-        ])
-    ],className="page1-grid"
+                dcc.Input(id = "inputCountry", value = "Usa", type = "text") ])
+            
+            ## allow user to switch between outputting in Fahrenheit and outputting in Celsius 
+        ]),
+        
+        
+        html.Div([
+            dcc.RadioItems(['Fahrenheit','Celsius'],value = 'Fahrenheit',id="TempSetting")
+        ]) 
+    ]
 )
 
 ##How ddo we get the website to display the informationn in an appropriate manner?
@@ -128,27 +129,26 @@ layout = html.Div(
 
 
 ##we need to include callbacks somehow.
+
+##callback to retrieve latitude and longitude from city and country
 @callback(
-    Input("inputCity","userInputCity"),
-    Input("inputCountry","userInputCountry")
+    Input('inputCity','value'),
+    Input('inputCountry','value')
+)
+def get_location(city,country):
+    result = placeFinder.geocode(city,country)
+    lat = result.latitude()
+    long = result.longitude()
+    return(lat,long)
+
+
+
+
+##Callback to retrieve new parameters
+@callback(
+    
 )
 
-
-##------------ Move to the top before initializing.-----------
-##------------ Combine starting_params and set_new_params by detecting if there was any input
-
-def lat_long(city,country):
-    place_finder = Nominatim(user_agent="temp_user")
-    LL_return = place_finder.geocode({'city':city, 'country':country}, addressdetails=True)
-    return (LL_return.latitude, LL_return.longitude)
-def starting_params():
-    LL = lat_long("Williamsburg","USA")
+def setParams():
     
-    paramStart ={
-        "latitude":LL[0],
-        "longitude":LL[1],
-        
-    }
-    return
-def set_new_params():
-    return True
+    return()
