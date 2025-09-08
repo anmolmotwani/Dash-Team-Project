@@ -35,8 +35,8 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 ##latitude and longitude via Location (input a city/country/etc)
 ##farenheit vs celsius
 
-latDefault = 0
-lonDefault = 0
+latDefault = 37.2757
+lonDefault = 76.7098
 
 ##add in a way for users to change these values
 ##have it remain unavailable until users input a city and country
@@ -47,13 +47,13 @@ url = "https://api.open-meteo.com/v1/forecast"
 params = {
     "latitude":latDefault, #function to recieve latitude from input,
     "longitude":lonDefault, #function to recieve longitude from input,
-    "daily" : ["temperature_2m_mean", "percipitation_sum"],
+    "daily" : ["temperature_2m_mean", "precipitation_sum"],
     ##add more
-    "hourly":["temperature_2m","percipitation"],
+    "hourly":["temperature_2m","precipitation"],
     #This is where we will put in all the parameters for weather information we want to return to the user
     
     
-    "current": ["temperature_2m","percipitation"],
+    "current": ["temperature_2m","precipitation"],
     ##Poteential things we could add "is_day"
     
     
@@ -70,7 +70,7 @@ params = {
 
 ##returned a two tiered dictionary of seperated by days? and conditions
 
-responses = openmeteo.weather_api(url, params = params)
+responses = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", params = params)
 
 
 ##response = responses[0]
@@ -88,13 +88,13 @@ layout = html.Div(
             html.Div
             ([
             "Input City: ",
-            dcc.Input(id = "inputCity", value = '', type = 'text', autoComplete=True)
+            dcc.Input(id = "inputCity", value = "Williamsburg", type = "text")
             ]),
               
             html.Div
             ([
                 "Input Country: ",
-                dcc.Input(id = "inputCountry", value = "", type = "text", autoComplete=True)
+                dcc.Input(id = "inputCountry", value = "Usa", type = "text")
             ])
                 
         ])
@@ -129,7 +129,8 @@ layout = html.Div(
 
 ##we need to include callbacks somehow.
 @callback(
-    Input("placeholder1","placeholder2")
+    Input("inputCity","userInputCity"),
+    Input("inputCountry","userInputCountry")
 )
 
 
