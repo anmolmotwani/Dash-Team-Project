@@ -40,9 +40,6 @@ url = "https://api.open-meteo.com/v1/forecast"
 
 
 
-
-
-
 layout = html.Div(
     [
         html.H1("Weather Report"),
@@ -146,9 +143,14 @@ def setParams(inCity,inCountry,paramSet,tempSet):
     params = {
         'latitude':latlon.latitude,
         'longitude':latlon.longitude,
-        'hourly': ['temperature','relative_humidity_2m','rain']
-        
+        'hourly': ['temperature_2m','relative_humidity_2m','rain'],
+        'temperature_unit':"fahrenheit"
     }
-    return True
+    responses = openmeteo.weather_api(url = "https://api.open-meteo.com/v1/forecast", params = params)
+    response = responses[0]
+    hourly = response.Hourly()
+    hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
+    stringOfTemp = f"{hourly_temperature_2m[0]:.2f}"
+    return stringOfTemp
 
 #callback DateAdjustment
