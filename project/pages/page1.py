@@ -1,11 +1,12 @@
 import dash
-from dash import html, dcc, Input, Output, State, callback
+from dash import html, dcc, Input, Output, callback
 from geopy.geocoders import Nominatim
 import requests_cache
 from retry_requests import retry
 import openmeteo_requests
 import pandas as pd
-import numpy as np  # <-- for robust nearest-hour calc
+import numpy as np
+import plotly.graph_objects as go
 
 # ----- Initialize geopy and OpenMeteo -----
 placeFinder = Nominatim(user_agent="my_user_agent")
@@ -16,7 +17,7 @@ openmeteo = openmeteo_requests.Client(session=retry_session)
 # Register page
 dash.register_page(__name__, path="/weather", name="Weather Report")
 
-# --- Animated icon snippets (note: wx-icon namespace) ---
+# --- Animated icon snippets (namespaced classes) ---
 def sun_icon():
     return html.Div(className="weather-icon-wrap", children=[
         html.Div(className="wx-icon sun", children=[
@@ -76,19 +77,21 @@ layout = html.Div(className="weatherPage clear", children=[
         )
     ], style={"margin-bottom": "20px"}),
 
-    # Shared data store (all downstream callbacks read from here)
+    # Shared data store
     dcc.Store(id="wx-data"),
 
     # Icon + current card
     html.Div(id="weather-icon", style={"margin": "6px 0 12px"}),
     html.Div(id="GetWeather", className="main-card"),
 
-    # Charts + small summary table
+    # Map instead of the daily chart
+    dcc.Graph(id="place-map", figure={"data": [], "layout": {"title": "Location Map"}}),
+
+    # Keep hourly chart + small summary
     dcc.Graph(id="hourly-chart", figure={"data": [], "layout": {"title": "Hourly Temperature"}}),
-    dcc.Graph(id="daily-chart", figure={"data": [], "layout": {"title": "7-Day High / Low & Precip"}}),
     html.Div(id="summary-table", style={"maxWidth": "680px", "margin": "10px auto"}),
 
-    # Daily cards row
+    # 7-day cards strip
     html.Div(id="forecast-cards", style={"display": "flex", "overflowX": "auto", "padding": "10px"})
 ])
 
@@ -126,9 +129,7 @@ def fetch_weather(city, country, tempUnit):
             "forecast_days": 4,
             "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
         }
-        response = openmeteo.weather_api(
-            "https://api.open-meteo.com/v1/forecast", params=api_params
-        )[0]
+        response = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", params=api_params)[0]
 
         # Hourly
         hourly = response.Hourly()
@@ -137,7 +138,6 @@ def fetch_weather(city, country, tempUnit):
         step    = pd.Timedelta(seconds=hourly.Interval())
         dt_idx  = pd.date_range(start=t_start, end=t_end, freq=step, inclusive="left")
 
-        # Nearest hour to local "now" (robust across pandas versions)
         local_tz  = dt_idx.tz
         now_local = pd.Timestamp.now(tz=local_tz)
         diff_secs = ((dt_idx - now_local) / pd.Timedelta(seconds=1)).astype(float)
@@ -208,11 +208,9 @@ def render_current_and_cards(data, params):
     meta = data["meta"]
     H = data["hourly"]
 
-    idx = H["idx_now"]
-    idx = max(0, min(idx, len(H["times"]) - 1))
-
-    temp = float(H["temperature"][idx])
-    humid = float(H["humidity"][idx])
+    idx = max(0, min(int(H["idx_now"]), len(H["times"]) - 1))
+    temp   = float(H["temperature"][idx])
+    humid  = float(H["humidity"][idx])
     precip = float(H["precip"][idx])
     time_str = H["times"][idx]
     unit_symbol = meta["unit_symbol"]
@@ -225,7 +223,6 @@ def render_current_and_cards(data, params):
     else:
         bg_class, icon = "clear", sun_icon()
 
-    # Unit-aware precip for "now"
     rain_now_txt = f"{precip/25.4:.2f} in" if meta["temp_unit"] == "fahrenheit" else f"{precip:.2f} mm"
 
     pieces = [
@@ -239,7 +236,7 @@ def render_current_and_cards(data, params):
 
     main_card = html.Div(className=f"main-card {bg_class}", children=pieces)
 
-    # 7 daily cards (Day -3..0..+3)
+    # 7 daily cards (Day -3..+3)
     D = data["daily"]
     cards = []
     for date_str, tmax, tmin, rain_mm, off in zip(D["dates"], D["tmax"], D["tmin"], D["precip_sum_mm"], D["offsets"]):
@@ -255,9 +252,9 @@ def render_current_and_cards(data, params):
 
     return main_card, cards, icon
 
-# ==================================
-# Callback 3: Hourly Temperature Plot
-# ==================================
+# ===============================
+# Callback 3: Hourly Temp Plot
+# ===============================
 @callback(
     Output("hourly-chart", "figure"),
     Input("wx-data", "data"),
@@ -271,17 +268,15 @@ def render_hourly_chart(data):
     unit = data["meta"]["unit_symbol"]
 
     fig = {
-        "data": [
-            {
-                "x": H["times"],
-                "y": H["temperature"],
-                "mode": "lines",
-                "name": f"Temperature ({unit})",
-                "hovertemplate": "%{x}<br>%{y:.1f} " + unit + "<extra></extra>",
-            }
-        ],
+        "data": [{
+            "x": H["times"],
+            "y": H["temperature"],
+            "mode": "lines",
+            "name": f"Temperature ({unit})",
+            "hovertemplate": "%{x}<br>%{y:.1f} " + unit + "<extra></extra>",
+        }],
         "layout": {
-            "title": "Hourly Temperature (last few days → next hours)",
+            "title": "Hourly Temperature (recent → near future)",
             "xaxis": {"title": "Local time"},
             "yaxis": {"title": unit},
             "margin": {"l": 40, "r": 10, "t": 50, "b": 40},
@@ -289,57 +284,59 @@ def render_hourly_chart(data):
     }
     return fig
 
-# ==============================================
-# Callback 4: 7-Day High/Low + Daily Precip Plot
-# ==============================================
+# ===============================
+# Callback 4: Location Map (NEW)
+# ===============================
 @callback(
-    Output("daily-chart", "figure"),
+    Output("place-map", "figure"),
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
-def render_daily_chart(data):
+def render_map(data):
     if not data or "error" in data:
-        return {"data": [], "layout": {"title": "7-Day High / Low & Precip"}}
+        return {"data": [], "layout": {"title": "Location Map"}}
 
-    D = data["daily"]
-    unit = data["meta"]["unit_symbol"]
+    meta = data["meta"]
+    H = data["hourly"]
+    idx = max(0, min(int(H["idx_now"]), len(H["times"]) - 1))
 
-    rows = [(d, tmax, tmin, rain, off)
-            for d, tmax, tmin, rain, off in zip(D["dates"], D["tmax"], D["tmin"], D["precip_sum_mm"], D["offsets"])
-            if -3 <= int(off) <= 3]
-    rows.sort(key=lambda x: x[0])
+    # Build hover text using the "now" reading
+    unit = meta["unit_symbol"]
+    temp = float(H["temperature"][idx])
+    humid = float(H["humidity"][idx])
+    precip = float(H["precip"][idx])
+    rain_txt = f"{precip/25.4:.2f} in" if meta["temp_unit"] == "fahrenheit" else f"{precip:.2f} mm"
 
-    dates = [r[0] for r in rows]
-    tmax  = [float(r[1]) for r in rows]
-    tmin  = [float(r[2]) for r in rows]
-    rain  = [float(r[3]) for r in rows]
+    hover = (f"<b>{meta['place']}</b><br>"
+             f"Lat/Lon: {meta['lat']}, {meta['lon']}<br>"
+             f"Temp: {temp:.1f}{unit}<br>"
+             f"Humidity: {humid:.0f}%<br>"
+             f"Precip: {rain_txt}")
 
-    if data["meta"]["temp_unit"] == "fahrenheit":
-        rain_disp = [round(mm/25.4, 2) for mm in rain]
-        rain_title = "Precip (in)"
-    else:
-        rain_disp = [round(mm, 2) for mm in rain]
-        rain_title = "Precip (mm)"
+    fig = go.Figure(go.Scattermapbox(
+        lat=[float(meta["lat"])],
+        lon=[float(meta["lon"])],
+        mode="markers",
+        marker={"size": 18},
+        hovertemplate=hover + "<extra></extra>",
+        name="Location"
+    ))
 
-    fig = {
-        "data": [
-            {"x": dates, "y": tmax, "type": "scatter", "mode": "lines+markers", "name": f"High ({unit})"},
-            {"x": dates, "y": tmin, "type": "scatter", "mode": "lines+markers", "name": f"Low ({unit})"},
-            {"x": dates, "y": rain_disp, "type": "bar", "name": rain_title, "yaxis": "y2"},
-        ],
-        "layout": {
-            "title": "7-Day High / Low & Daily Precip",
-            "xaxis": {"title": "Date"},
-            "yaxis": {"title": unit},
-            "yaxis2": {"title": rain_title, "overlaying": "y", "side": "right"},
-            "legend": {"orientation": "h"},
-            "margin": {"l": 50, "r": 50, "t": 50, "b": 40},
+    fig.update_layout(
+        title="Location Map",
+        mapbox={
+            "style": "open-street-map",
+            "center": {"lat": float(meta["lat"]), "lon": float(meta["lon"])},
+            "zoom": 9
         },
-    }
+        margin={"l": 20, "r": 20, "t": 50, "b": 20},
+        height=420,
+        showlegend=False
+    )
     return fig
 
 # =================================
-# Callback 5 (optional): Small table
+# Callback 5: Small summary table
 # =================================
 @callback(
     Output("summary-table", "children"),
