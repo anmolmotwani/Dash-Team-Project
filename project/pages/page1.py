@@ -8,7 +8,6 @@ import pandas as pd
 
 # ----- Initialize geopy and OpenMeteo -----
 placeFinder = Nominatim(user_agent="my_user_agent")
-
 cache_session = requests_cache.CachedSession(".cache", expire_after=3600)
 retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
 openmeteo = openmeteo_requests.Client(session=retry_session)
@@ -74,7 +73,6 @@ layout = html.Div(className="weatherPage clear", children=[
         )
     ], style={"margin-bottom": "20px"}),
 
-    # Icon goes here
     html.Div(id="weather-icon", style={"margin": "6px 0 12px"}),
 
     html.Div(id="GetWeather", className="main-card"),
@@ -82,7 +80,6 @@ layout = html.Div(className="weatherPage clear", children=[
     html.Div(id="forecast-cards", style={"display": "flex", "overflowX": "auto", "padding": "10px"})
 ])
 
-# ----- Callbacks -----
 @callback(
     Output("GetWeather", "children"),
     Output("forecast-cards", "children"),
@@ -94,65 +91,59 @@ layout = html.Div(className="weatherPage clear", children=[
 )
 def update_weather(city, country, tempUnit, params):
     try:
-        # Geocode (city + country); for states like "Arizona", prefer a city (e.g., Phoenix) for better comparability
+        # Geocode
         location = placeFinder.geocode({"city": city, "country": country}, timeout=10)
         if not location:
             raise ValueError("Location not found.")
         lat, lon = location.latitude, location.longitude
 
-        # Units per TempSetting
+        # Units
         temp_unit = "fahrenheit" if tempUnit.lower().startswith("f") else "celsius"
         unit_symbol = "°F" if temp_unit == "fahrenheit" else "°C"
 
-        # Call Open-Meteo hourly endpoint
+        # ---- API call (hourly for "now", daily for cards) ----
         apiParams = {
             "latitude": lat,
             "longitude": lon,
             "timezone": "auto",
-            "hourly": ["temperature_2m", "precipitation", "relative_humidity_2m"],
             "temperature_unit": temp_unit,
-            "past_days": 1,   # we only need recent history to find 'now'
-            "forecast_days": 1,
+            "hourly": ["temperature_2m", "precipitation", "relative_humidity_2m"],
+            # 3 days back + 4 ahead gives a 7-day window centered on today
+            "past_days": 3,
+            "forecast_days": 4,
+            "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
         }
-        responses = openmeteo.weather_api("https://api.open-meteo.com/v1/forecast", params=apiParams)
-        response = responses[0]
-        hourly = response.Hourly()  # method call
+        response = openmeteo.weather_api(
+            "https://api.open-meteo.com/v1/forecast", params=apiParams
+        )[0]
 
-        # Arrays
+        # ---- Current conditions from hourly ----
+        hourly = response.Hourly()
         temp_arr   = hourly.Variables(0).ValuesAsNumpy()
         precip_arr = hourly.Variables(1).ValuesAsNumpy()
         humid_arr  = hourly.Variables(2).ValuesAsNumpy()
 
-        # Local time index (tz-aware)
         t_start = pd.to_datetime(hourly.Time(),    unit="s", utc=True)
         t_end   = pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True)
         step    = pd.Timedelta(seconds=hourly.Interval())
-        dt_index = pd.date_range(start=t_start, end=t_end, freq=step, inclusive="left")  # tz-aware (UTC)
+        dt_index = pd.date_range(start=t_start, end=t_end, freq=step, inclusive="left")
 
-        # Open-Meteo uses the requested timezone for values, but timestamps are given with tz info.
-        # Convert to that tz for "now" comparison.
-        # Determine the tz from the index (e.g., America/Phoenix)
         local_tz = dt_index.tz
         now_local = pd.Timestamp.now(tz=local_tz)
 
-        df = pd.DataFrame({
-            "time": dt_index,                # tz-aware
-            "temperature": temp_arr,
-            "precip": precip_arr,
-            "humidity": humid_arr
-        })
+        df_hour = pd.DataFrame({"time": dt_index,
+                                "temperature": temp_arr,
+                                "precip": precip_arr,
+                                "humidity": humid_arr})
 
-        # Select the hour CLOSEST to local 'now' (fixes the early-morning/next-day bug)
-        i_closest = (df["time"] - now_local).abs().idxmin()
-        row = df.loc[i_closest]
+        i_closest = (df_hour["time"] - now_local).abs().idxmin()
+        row = df_hour.loc[i_closest]
         display_time = row["time"].tz_convert(None).strftime("%Y-%m-%d %H:%M")
 
-        # Format values
         temp_txt = f"{row['temperature']:.1f}{unit_symbol}"
         hum_txt  = f"{row['humidity']:.0f}%"
         rain_txt = f"{row['precip']:.2f} mm"
 
-        # Decide background + icon from real values
         if row["precip"] > 0.2:
             bg_class, icon = "rainy", rain_icon()
         elif row["humidity"] >= 70:
@@ -160,29 +151,51 @@ def update_weather(city, country, tempUnit, params):
         else:
             bg_class, icon = "clear", sun_icon()
 
-        # Current weather card
-        pieces = [
-            html.H2(f"{city.title()}, {country.upper()}"),
-            html.P(f"Time: {display_time}")
-        ]
+        pieces = [html.H2(f"{city.title()}, {country.upper()}"),
+                  html.P(f"Time: {display_time}")]
         if "Temperature" in params: pieces.append(html.P(f"Temperature: {temp_txt}"))
         if "Humidity"   in params: pieces.append(html.P(f"Humidity: {hum_txt}"))
         if "Rain"       in params: pieces.append(html.P(f"Rain: {rain_txt}"))
-
         main_card = html.Div(className=f"main-card {bg_class}", children=pieces)
 
-        # Forecast cards (still simple placeholders using current reading)
-        forecast_cards = []
-        for i in range(-3, 4):
-            forecast_cards.append(
+        # ---- Daily forecast cards (unique values per day) ----
+        daily = response.Daily()
+        d_start = pd.to_datetime(daily.Time(),    unit="s", utc=True)
+        d_end   = pd.to_datetime(daily.TimeEnd(), unit="s", utc=True)
+        d_step  = pd.Timedelta(seconds=daily.Interval())
+        d_index = pd.date_range(start=d_start, end=d_end, freq=d_step, inclusive="left")
+
+        tmax = daily.Variables(0).ValuesAsNumpy()
+        tmin = daily.Variables(1).ValuesAsNumpy()
+        rain = daily.Variables(2).ValuesAsNumpy()
+
+        df_daily = pd.DataFrame({
+            "date": d_index.tz_convert(local_tz).normalize(),
+            "tmax": tmax,
+            "tmin": tmin,
+            "rain": rain
+        })
+
+        today = pd.Timestamp.now(tz=local_tz).normalize()
+        df_daily["offset"] = (df_daily["date"] - today).dt.days
+
+        # Keep exactly [-3..+3] days around today
+        window = df_daily[df_daily["offset"].between(-3, 3)].copy()
+        window.sort_values("date", inplace=True)
+
+        cards = []
+        for _, r in window.iterrows():
+            # Simple midpoint temp for display; use max/min separately if you prefer
+            t_mid = (r["tmax"] + r["tmin"]) / 2
+            cards.append(
                 html.Div(className="card", children=[
-                    html.P(f"Day {i}"),
-                    html.P(f"Temp: {temp_txt}"),
-                    html.P(f"Rain: {rain_txt}")
+                    html.P(f"Day {int(r['offset']):+d}".replace("+", "")),  # -3 … 0 … 3
+                    html.P(f"Temp: {t_mid:.1f}{unit_symbol}"),
+                    html.P(f"Rain: {float(r['rain']):.2f} mm")
                 ])
             )
 
-        return main_card, forecast_cards, icon
+        return main_card, cards, icon
 
     except Exception as e:
         return html.Div(f"Error fetching weather data: {str(e)}", className="main-card"), [], html.Div()
