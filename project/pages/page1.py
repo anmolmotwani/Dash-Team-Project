@@ -145,13 +145,24 @@ def setParams(inCity,inCountry,paramSet,tempSet):
     params = {
         'latitude':latlon.latitude,
         'longitude':latlon.longitude,
-        'hourly': ['temperature_2m','relative_humidity_2m','rain'],
-        'temperature_unit':"fahrenheit"
+        'hourly': ['temperature_2m','rain','relative_humidity_2m'],
+        'temperature_unit':"fahrenheit",
+        "past_days":7,
     }
     responses = openmeteo.weather_api(url = "https://api.open-meteo.com/v1/forecast", params = params)
     response = responses[0]
     hourly = response.Hourly()
-    hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
+    
+    
+    if ('Temperature' and 'Rain' and 'Humidity') not in paramSet:
+        print("Error, please include a parameter")
+    
+    if 'Temperature' in paramSet:
+        hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
+    if 'Rain' in paramSet:
+        hourly_rain = hourly.Variables(1).ValuesAsNumpy()
+    if 'Humidity' in paramSet:
+        hourly_relative_humidity_2m = hourly.Variables(2).ValuesAsNumpy()
     
     ##taken directly from open meteo documentation for testing
     
@@ -162,7 +173,13 @@ def setParams(inCity,inCountry,paramSet,tempSet):
 	inclusive = "left"
     )}
     
-    hourly_data["temperature_2m"] = hourly_temperature_2m
+    
+    if 'Temperature' in paramSet:
+        hourly_data["temperature_2m"] = hourly_temperature_2m
+    if 'Rain' in paramSet:
+        hourly_data["rain"] = hourly_rain
+    if 'Humidity' in paramSet:
+        data["hourly_relative_humidity_2m"] = hourly_relative_humidity_2m
 
     hourly_dataframe = pd.DataFrame(data = hourly_data)
     print("\nHourly data\n", hourly_dataframe)
