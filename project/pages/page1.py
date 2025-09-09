@@ -10,7 +10,7 @@ from datetime import date
 
 today = date.today()
 date_list = []
-for i in range(-5,8):
+for i in range(-7,8):
     x = today.day + i
     y = today.replace(day = x)
     date_list.append(y)
@@ -69,6 +69,13 @@ layout = html.Div(
             dcc.Checklist(['Temperature','Rain','Humidity'],['Temperature'], id = "paramSettings")#relative_humidity_2m is
         ]),
         
+        html.Div([
+            dcc.Slider(0,23,1, value = 0, id = "timeslider")
+        ]),
+            html.Div([
+            dcc.Slider(0,14,1, value = 0, id = "dayslider")
+        ]),
+        
        html.Div(id="GetWeather")
         
 
@@ -101,11 +108,6 @@ layout = html.Div(
 ##Radio for Celsius/Farenheit
 ##dcc.RadioItems(['Celsius','Farenheit'], 'Farenheit')
 
-
-
-
-
-
 ##----------------------------------------------------------------------------------------Change to one callback-------------------
 
 ##callback to retrieve latitude and longitude from city and country
@@ -136,17 +138,31 @@ layout = html.Div(
     
     Input('paramSettings', 'value'),
     
-    Input("TempSetting", "value")
+    Input("TempSetting", "value"),
+    
+    Input("timeslider","value"),
+    
+    Input("dayslider", "value")
 )
 
-def setParams(inCity,inCountry,paramSet,tempSet):  
-    latlon = placeFinder.geocode({'city':inCity, 'country':inCountry})
+def setParams(inCity,inCountry,paramSet,tempSet, timeGet, dayGet):  
+    paramTemp = False
+    paramRain = False
+    paramHumid = False
+    temp_set = "fahrenheit"
+    try:
+        latlon = placeFinder.geocode({'city':inCity, 'country':inCountry},timeout=2)
+    except:
+        print("Error")
+    
+    if tempSet == "Celsius":
+        temp_set = "celsius"
     
     params = {
         'latitude':latlon.latitude,
         'longitude':latlon.longitude,
         'hourly': ['temperature_2m','rain','relative_humidity_2m'],
-        'temperature_unit':"fahrenheit",
+        'temperature_unit':temp_set,
         "past_days":7,
     }
     responses = openmeteo.weather_api(url = "https://api.open-meteo.com/v1/forecast", params = params)
@@ -159,10 +175,13 @@ def setParams(inCity,inCountry,paramSet,tempSet):
     
     if 'Temperature' in paramSet:
         hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
+        paramTemp = True
     if 'Rain' in paramSet:
         hourly_rain = hourly.Variables(1).ValuesAsNumpy()
+        paramRain = True
     if 'Humidity' in paramSet:
         hourly_relative_humidity_2m = hourly.Variables(2).ValuesAsNumpy()
+        paramHumid = True
     
     ##taken directly from open meteo documentation for testing
     
@@ -174,16 +193,45 @@ def setParams(inCity,inCountry,paramSet,tempSet):
     )}
     
     
-    if 'Temperature' in paramSet:
+    if paramTemp:
         hourly_data["temperature_2m"] = hourly_temperature_2m
-    if 'Rain' in paramSet:
+    if paramRain:
         hourly_data["rain"] = hourly_rain
-    if 'Humidity' in paramSet:
-        data["hourly_relative_humidity_2m"] = hourly_relative_humidity_2m
+    if paramHumid:
+        hourly_data["hourly_relative_humidity_2m"] = hourly_relative_humidity_2m
 
     hourly_dataframe = pd.DataFrame(data = hourly_data)
+    hourly_list = hourly_dataframe.to_numpy()
     print("\nHourly data\n", hourly_dataframe)
+    
+    timeRef = 0
+    
+    for a in range(int(dayGet)):
+        timeRef+=24
+    for b in range(int(timeGet)):
+        timeRef+=1
+            
+    
+    x = f"The Date is 09/{2+dayGet}/2025 at {timeGet}:00 Hours \n"
+    if paramTemp:
+        x += f"\n Temperature {hourly_list[timeRef][1]:.2f}"
+        if paramRain:
+            x+= f"\n Rain Level: {hourly_list[timeRef][2]}"
+            if paramHumid:
+                x+= f"\n Humidity {hourly_list[timeRef][3]}"
+        elif paramHumid:
+            x+= f"\n Humidity {hourly_list[timeRef][2]}"
+    elif paramRain:
+        x+= f"\n Rain level: {hourly_list[timeRef][1]}"
+        if paramHumid:
+            x+= f"\n Humidity {hourly_list[timeRef][2]}"
+    elif paramHumid:
+        x+= f"\n Humidity {hourly_list[timeRef][1]}"
         
-    return hourly_dataframe.to_numpy()
-
+                
+    return x
+    ###Column 0 [x][0] represents date and time 
+    ##starts at 0:00 Today -7 days, ends at 23:00 today +7 days
+    ##Column 1 [x][0] represents the temperature with 6 decimal points
+    
 #callback DateAdjustment
