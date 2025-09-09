@@ -1,17 +1,13 @@
 import dash
-from dash import html, dcc
+from dash import html
 
-dash.register_page(__name__,path="/")
+dash.register_page(__name__, path="/")
 
-layout = html.Div([
-    ##Find out something interesting to put on the home page.
-    
-    html.H2("Welcome to our Weather Report"),
-    dcc.Markdown(id = "WR", children = '''
-                 Are you looking for the jazz fusion band [Weather Report](https://youtu.be/SvhmaNlLgRM?si=1hyegq2V5DvHG-fH)?
-                 ''')
-    
-    ##We could possibly have the homepage display specifically Williamsburg
-    
-],className="homePage"
-                  )
+layout = html.Div(
+    className="homePage clear",
+    children=[
+        html.H1("Welcome to Weather Report 🌤️"),
+        html.P("Type a city on the Weather Report page to see 7 days past & future weather."),
+        html.P("Experience interactive cards with animated backgrounds and Apple-style design.")
+    ]
+)

@@ -1,32 +1,27 @@
-from dash import Dash, html, dcc, page_container
+from dash import Dash, html, page_container
 import dash_bootstrap_components as dbc
-from geopy.geocoders import Nominatim
-##instantiate the app
 
-app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True, title = "Weather App")
+app = Dash(
+    __name__,
+    use_pages=True,
+    suppress_callback_exceptions=True,
+    title="Weather App",
+    external_stylesheets=[dbc.themes.BOOTSTRAP]
+)
 server = app.server
-
-
-
-        
-##App Layout--------------------------------------------------------------------------------------------------------------
 
 app.layout = html.Div([
     dbc.NavbarSimple(
-        children = [
+        children=[
             dbc.NavLink("Home", href="/", active="exact"),
-            dbc.NavLink("Weather Info", href="/page1", active="exact")
+            dbc.NavLink("Weather Report", href="/weather", active="exact")
         ],
-        brand = "Weather Report"
+        brand="Weather Report",
+        color="primary",
+        dark=True
     ),
     page_container
 ])
 
-
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)
-    
-##very barebones layout based upon what we did in class.

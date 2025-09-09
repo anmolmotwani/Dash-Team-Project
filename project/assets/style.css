@@ -1,47 +1,62 @@
-
-/*default/home page */
-body{
-    background-color: #eaebd3 !important;
-    font-family: Arial, Helvetica, sans-serif
-}
-h2{
-    color:#2e3450;
+body { 
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-p{
-    font-size: 16px;
-    line-height: 1.4;
+/* Backgrounds */
+.clear {
+    background: linear-gradient(to bottom, #87ceeb, #ffffff);
 }
 
-a{ 
-   display: inline-block;
-   margin: 18px;
-   text-decoration: none;
-   border: 2px solid white;
-   border-radius: 6px;
-   padding: 10px 20px;
-   background-color: #758fb3;
-   color: rgb(255, 255, 255);
-}
-a:hover{
-    background-color: #5e779b;
+.cloudy {
+    background: linear-gradient(to bottom, #d7d7d7, #f0f0f0);
 }
 
-.homePage{
-    font-size: 10;
+.rainy {
+    background: linear-gradient(to bottom, #5f7c8a, #a0b5c3);
+    animation: rain 0.5s linear infinite;
 }
-#WR{
-    font-size: 10;
-    a{
-        color:blue;
-        text-decoration: underline;
-        border: 0;
-        background-color: #00000000;
-        margin: auto;
-        padding: 0px 0px;
-        border-radius: 0;
-    }
+
+@keyframes rain {
+    0% {background-position:0 0;}
+    100% {background-position:100% 100%;}
 }
-/* Page 1 styles*/
 
+/* Cards */
+.card {
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px auto;
+    width: 150px;
+    background-color: rgba(255,255,255,0.9);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    text-align: center;
+    flex-shrink: 0;
+}
 
+.main-card {
+    width: 300px;
+    background-color: rgba(255,255,255,0.95);
+    padding: 20px;
+    margin: 20px auto;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Scroll container for forecast cards */
+#forecast-cards {
+    padding: 10px;
+}
+
+.main-card {
+    width: 300px;
+    background-color: rgba(255,255,255,0.95);
+}
+
+#forecast-cards {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+}
