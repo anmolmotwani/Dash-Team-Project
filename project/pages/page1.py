@@ -161,7 +161,7 @@ def setParams(inCity,inCountry,paramSet,tempSet, timeGet, dayGet):
     params = {
         'latitude':latlon.latitude,
         'longitude':latlon.longitude,
-        'hourly': ['temperature_2m','rain','relative_humidity_2m'],
+        'hourly': ['temperature_2m','precipitation','relative_humidity_2m'],
         'temperature_unit':temp_set,
         "past_days":7,
     }
@@ -177,7 +177,7 @@ def setParams(inCity,inCountry,paramSet,tempSet, timeGet, dayGet):
         hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
         paramTemp = True
     if 'Rain' in paramSet:
-        hourly_rain = hourly.Variables(1).ValuesAsNumpy()
+        hourly_precipitation = hourly.Variables(1).ValuesAsNumpy()
         paramRain = True
     if 'Humidity' in paramSet:
         hourly_relative_humidity_2m = hourly.Variables(2).ValuesAsNumpy()
@@ -196,7 +196,7 @@ def setParams(inCity,inCountry,paramSet,tempSet, timeGet, dayGet):
     if paramTemp:
         hourly_data["temperature_2m"] = hourly_temperature_2m
     if paramRain:
-        hourly_data["rain"] = hourly_rain
+        hourly_data["precipitation"] = hourly_precipitation
     if paramHumid:
         hourly_data["hourly_relative_humidity_2m"] = hourly_relative_humidity_2m
 
@@ -216,13 +216,13 @@ def setParams(inCity,inCountry,paramSet,tempSet, timeGet, dayGet):
     if paramTemp:
         x += f"\n Temperature {hourly_list[timeRef][1]:.2f}"
         if paramRain:
-            x+= f"\n Rain Level: {hourly_list[timeRef][2]}"
+            x+= f"\n\n Precipitation Level: {hourly_list[timeRef][2]}"
             if paramHumid:
                 x+= f"\n Humidity {hourly_list[timeRef][3]}"
         elif paramHumid:
             x+= f"\n Humidity {hourly_list[timeRef][2]}"
     elif paramRain:
-        x+= f"\n Rain level: {hourly_list[timeRef][1]}"
+        x+= f"\n Precipitation level: {hourly_list[timeRef][1]}"
         if paramHumid:
             x+= f"\n Humidity {hourly_list[timeRef][2]}"
     elif paramHumid:
