@@ -1,3 +1,4 @@
+/* ===== Base ===== */
 body { 
     font-family: Arial, Helvetica, sans-serif;
     margin: 0;
@@ -6,7 +7,22 @@ body {
 
 .T
 
-/* Backgrounds */
+/* ===== Navbar: match cards exact color (#073642) ===== */
+#main-navbar .navbar-brand,
+#main-navbar .nav-link {
+    color: rgba(255,255,255,0.85) !important;
+}
+#main-navbar .nav-link.active {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+#main-navbar {
+    background-color: #073642 !important;   /* safety in case inline style is removed */
+    border-bottom: 1px solid rgba(147,161,161,0.35);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* ===== Backgrounds ===== */
 .clear {
     background: linear-gradient(to bottom, #87ceeb, #ffffff);
 }
@@ -18,14 +34,23 @@ body {
 .rainy {
     background: linear-gradient(to bottom, #5f7c8a, #a0b5c3);
     animation: rain 0.5s linear infinite;
+    background-size: 200% 200%;
 }
 
 @keyframes rain {
-    0% {background-position:0 0;}
-    100% {background-position:100% 100%;}
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
 }
 
-/* Cards */
+/* Ensure pages have breathing room over gradients */
+.weatherPage,
+.homePage {
+    min-height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+/* ===== Cards ===== */
 .card {
     border-radius: 15px;
     padding: 15px;
@@ -40,6 +65,7 @@ body {
 .main-card {
     width: 300px;
     background-color: rgba(255,255,255,0.95);
+    color: #111;
     padding: 20px;
     margin: 20px auto;
     text-align: center;
@@ -47,18 +73,17 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Scroll container for forecast cards */
-#forecast-cards {
-    padding: 10px;
-}
-
-.main-card {
-    width: 300px;
-    background-color: rgba(255,255,255,0.95);
-}
-
+/* ===== Forecast strip ===== */
 #forecast-cards {
     display: flex;
     overflow-x: auto;
+    gap: 10px;
     padding: 10px;
+}
+
+/* (Optional) subtle text glow on dark/gradient backgrounds */
+.clear .main-card h2,
+.cloudy .main-card h2,
+.rainy .main-card h2 {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
 }
