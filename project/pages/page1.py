@@ -2,6 +2,7 @@ import dash
 from dash import Dash, dcc, Input, html, Output, callback
 from geopy.geocoders import Nominatim
 import openmeteo_requests 
+import pandas as pd
 from retry_requests import retry
 import requests_cache 
 import requests
@@ -68,8 +69,9 @@ layout = html.Div(
             dcc.Checklist(['Temperature','Rain','Humidity'],['Temperature'], id = "paramSettings")#relative_humidity_2m is
         ]),
         
-        html.Div(id="GetWeather")
+       html.Div(id="GetWeather")
         
+
 
     ]
 )
@@ -150,7 +152,21 @@ def setParams(inCity,inCountry,paramSet,tempSet):
     response = responses[0]
     hourly = response.Hourly()
     hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
-    stringOfTemp = f"{hourly_temperature_2m[0]:.2f}"
-    return stringOfTemp
+    
+    ##taken directly from open meteo documentation for testing
+    
+    hourly_data = {"date": pd.date_range(
+	start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
+	end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
+	freq = pd.Timedelta(seconds = hourly.Interval()),
+	inclusive = "left"
+    )}
+    
+    hourly_data["temperature_2m"] = hourly_temperature_2m
+
+    hourly_dataframe = pd.DataFrame(data = hourly_data)
+    print("\nHourly data\n", hourly_dataframe)
+        
+    return hourly_dataframe.to_numpy()
 
 #callback DateAdjustment
