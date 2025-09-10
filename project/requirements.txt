@@ -1,0 +1,9 @@
+dash
+pandas
+numpy
+plotly
+geopy
+requests-cache
+retry-requests
+openmeteo-requests
+gunicorn 
