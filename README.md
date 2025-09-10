@@ -37,7 +37,7 @@ The app is hosted through Render servers using the dash app framework with css s
 App is to be runned from app.py, link shall appear in terminal, <i> CTRL + Click </i> the link that follows after running to host a local version of the program.
 
 <b> AI Acnkowledgment</b>
-<p>Resources such as ChatGPT and Google Gemini were used to retrieve information about resources and to check over code for bug fixing purposes. AI generated code was not used in the final product. We used AI for structuring callbacks, creating CSS animations..</p>
+<p>Resources such as ChatGPT and Google Gemini were used to retrieve information about resources and to check over code for bug fixing purposes. AI generated code was not used in the final product. We used AI for structuring callbacks, creating CSS animations.</p>
 
 <b>Data Dictionary</b>
 
@@ -52,11 +52,11 @@ App is to be runned from app.py, link shall appear in terminal, <i> CTRL + Click
 - Dash Pages navigation (Home and Weather Report)
 - dcc.Store pattern so the API call happens once, then multiple callbacks render UI
 - 4+ interactive callbacks:
-  - fetch data to store
-  - build current card + icon + daily cards
-  - hourly chart
-  - map
-  - summary table (extra)
+   fetch data to store
+   build current card + icon + daily cards
+   hourly chart
+   map
+   summary table (extra)
 - Robust time handling: selects the hourly value closest to local "now"
 - CSS-animated sun, cloud, and rain icons with namespaced styles
 
