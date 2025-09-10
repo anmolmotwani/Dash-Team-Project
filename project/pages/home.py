@@ -46,6 +46,8 @@ layout = html.Div(
                 indicators=True,
                 class_name = "carousel",
                 variant='dark'
+                
+                
             )
         ),
     ]

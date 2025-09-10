@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import dash
 from dash import html, dcc, Input, Output, callback
 from geopy.geocoders import Nominatim
@@ -105,7 +104,8 @@ layout = html.Div(className="weatherPage clear", children=[
     Input("inputCountry", "value"),
     Input("TempSetting", "value"),
 )
-def fetch_weather(city, country, tempUnit):
+##Callback 1 — Fetch once, store everywhere
+def fetch_weather(city, country, tempUnit):  #### first callback 
     try:
         # Geocode
         location = placeFinder.geocode({"city": city, "country": country}, timeout=10)
@@ -201,7 +201,9 @@ def fetch_weather(city, country, tempUnit):
     Input("paramSettings", "value"),
     prevent_initial_call=False
 )
-def render_current_and_cards(data, params):
+### Callback 2 — Current card, icon, daily cards
+
+def render_current_and_cards(data, params): 
     if not data or "error" in data:
         msg = data.get("error", "No data") if isinstance(data, dict) else "No data"
         return html.Div(f"Error: {msg}", className="main-card"), [], html.Div()
@@ -261,6 +263,8 @@ def render_current_and_cards(data, params):
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
+
+##Callback 3 — Hourly temperature chart
 def render_hourly_chart(data):
     if not data or "error" in data:
         return {"data": [], "layout": {"title": "Hourly Temperature"}}
@@ -293,6 +297,8 @@ def render_hourly_chart(data):
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
+
+##Callback 4 — Location map
 def render_map(data):
     if not data or "error" in data:
         return {"data": [], "layout": {"title": "Location Map"}}
@@ -344,6 +350,8 @@ def render_map(data):
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
+
+##Callback 5 — Summary table
 def render_summary_table(data):
     if not data or "error" in data:
         return html.Div("No summary available.")
@@ -370,61 +378,3 @@ def render_summary_table(data):
             ])
         ]
     )
-=======
-from dash import html, dcc, register_page
-
-# Weather Info page (placeholder UX ready for your callbacks)
-register_page(__name__, path="/page1", name="Weather Info")
-
-layout = html.Div(
-    className="container",
-    children=[
-        html.H2("Weather Info"),
-        html.P("Select a city and view the next 48 hours of temperatures (coming next)."),
-
-        # Controls (IDs ready for callbacks you’ll add later)
-        html.Div(
-            className="mb-3",
-            children=[
-                html.Label("City"),
-                dcc.Dropdown(
-                    id="city-dropdown",
-                    options=[
-                        {"label": "New York", "value": "new_york"},
-                        {"label": "San Francisco", "value": "san_francisco"},
-                        {"label": "Miami", "value": "miami"},
-                    ],
-                    value="new_york",
-                    clearable=False,
-                ),
-            ],
-        ),
-
-        html.Div(
-            className="mb-3",
-            children=[
-                html.Button("Refresh", id="refresh-btn", className="btn btn-secondary"),
-            ],
-        ),
-
-        # Chart placeholder
-        dcc.Loading(
-            type="default",
-            children=dcc.Graph(id="temp-chart", figure={"data": [], "layout": {"title": "Temperature (next 48h)"}})
-        ),
-
-        # KPIs placeholders
-        html.Div(
-            className="row mt-4",
-            children=[
-                html.Div(className="col-md-4", children=[html.H4(id="kpi-now", children="Now: — °C")]),
-                html.Div(className="col-md-4", children=[html.H4(id="kpi-min", children="Min: — °C")]),
-                html.Div(className="col-md-4", children=[html.H4(id="kpi-max", children="Max: — °C")]),
-            ],
-        ),
-
-        # Simple table placeholder
-        html.Div(className="mt-4", children=[html.Div(id="summary-table")]),
-    ],
-)
->>>>>>> Stashed changes
