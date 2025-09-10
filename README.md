@@ -47,4 +47,28 @@ App is to be runned from app.py, link shall appear in terminal, <i> CTRL + Click
 
     main_card and forecast_cards: center card and lower smaller cards that display relevant information regarding the weather.
 
+<b>Features</b>
+
+- Dash Pages navigation (Home and Weather Report)
+- dcc.Store pattern so the API call happens once, then multiple callbacks render UI
+- 4+ interactive callbacks:
+  - fetch data to store
+  - build current card + icon + daily cards
+  - hourly chart
+  - map
+  - summary table (extra)
+- Robust time handling: selects the hourly value closest to local "now"
+- CSS-animated sun, cloud, and rain icons with namespaced styles
+
+
+<b>Tech Stack</b>
+
+- Python, Dash, Plotly
+- dash-bootstrap-components for layout and a carousel on Home
+- geopy + Nominatim for geocoding
+- open-meteo-requests for weather
+- requests-cache + retry-requests for resilient API calls
+- pandas and numpy for data handling
+
+
 
