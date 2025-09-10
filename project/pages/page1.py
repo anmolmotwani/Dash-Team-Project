@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import dash
 from dash import html, dcc, Input, Output, callback
 from geopy.geocoders import Nominatim
@@ -369,3 +370,61 @@ def render_summary_table(data):
             ])
         ]
     )
+=======
+from dash import html, dcc, register_page
+
+# Weather Info page (placeholder UX ready for your callbacks)
+register_page(__name__, path="/page1", name="Weather Info")
+
+layout = html.Div(
+    className="container",
+    children=[
+        html.H2("Weather Info"),
+        html.P("Select a city and view the next 48 hours of temperatures (coming next)."),
+
+        # Controls (IDs ready for callbacks you’ll add later)
+        html.Div(
+            className="mb-3",
+            children=[
+                html.Label("City"),
+                dcc.Dropdown(
+                    id="city-dropdown",
+                    options=[
+                        {"label": "New York", "value": "new_york"},
+                        {"label": "San Francisco", "value": "san_francisco"},
+                        {"label": "Miami", "value": "miami"},
+                    ],
+                    value="new_york",
+                    clearable=False,
+                ),
+            ],
+        ),
+
+        html.Div(
+            className="mb-3",
+            children=[
+                html.Button("Refresh", id="refresh-btn", className="btn btn-secondary"),
+            ],
+        ),
+
+        # Chart placeholder
+        dcc.Loading(
+            type="default",
+            children=dcc.Graph(id="temp-chart", figure={"data": [], "layout": {"title": "Temperature (next 48h)"}})
+        ),
+
+        # KPIs placeholders
+        html.Div(
+            className="row mt-4",
+            children=[
+                html.Div(className="col-md-4", children=[html.H4(id="kpi-now", children="Now: — °C")]),
+                html.Div(className="col-md-4", children=[html.H4(id="kpi-min", children="Min: — °C")]),
+                html.Div(className="col-md-4", children=[html.H4(id="kpi-max", children="Max: — °C")]),
+            ],
+        ),
+
+        # Simple table placeholder
+        html.Div(className="mt-4", children=[html.Div(id="summary-table")]),
+    ],
+)
+>>>>>>> Stashed changes
