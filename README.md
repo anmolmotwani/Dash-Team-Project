@@ -37,7 +37,7 @@ The app is hosted through Render servers using the dash app framework with css s
 App is to be runned from app.py, link shall appear in terminal, <i> CTRL + Click </i> the link that follows after running to host a local version of the program.
 
 <b> AI Acnkowledgment</b>
-<p>Resources such as ChatGPT and Google Gemini were used to retrieve information about resources and to check over code for bug fixing purposes. AI generated code was not used in the final product.</p>
+<p>Resources such as ChatGPT and Google Gemini were used to retrieve information about resources and to check over code for bug fixing purposes. AI generated code was not used in the final product. We used AI for structuring callbacks, creating CSS animations..</p>
 
 <b>Data Dictionary</b>
 
