@@ -1,0 +1,9 @@
+dash
+dash-bootstrap-components
+openmeteo-requests
+geopy
+requests-cache
+retry-requests
+pandas
+numpy
+plotly
