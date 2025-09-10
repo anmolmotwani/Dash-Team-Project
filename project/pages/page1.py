@@ -77,7 +77,7 @@ layout = html.Div(className="weatherPage clear", children=[
         )
     ], style={"margin-bottom": "20px"}),
 
-    # Shared data store
+    # Shared data store 
     dcc.Store(id="wx-data"),
 
     # Icon + current card
