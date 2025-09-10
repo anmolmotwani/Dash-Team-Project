@@ -7,3 +7,4 @@ retry-requests
 pandas
 numpy
 plotly
+gunicorn
