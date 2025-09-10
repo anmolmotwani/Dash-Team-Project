@@ -77,7 +77,7 @@ layout = html.Div(className="weatherPage clear", children=[
         )
     ], style={"margin-bottom": "20px"}),
 
-    # Shared data store 
+    # Shared data store
     dcc.Store(id="wx-data"),
 
     # Icon + current card
@@ -87,7 +87,7 @@ layout = html.Div(className="weatherPage clear", children=[
     # Map instead of the daily chart
     dcc.Graph(id="place-map", figure={"data": [], "layout": {"title": "Location Map"}}),
 
-    # Keep hourly chart + small summary
+    # Hourly chart + small summary
     dcc.Graph(id="hourly-chart", figure={"data": [], "layout": {"title": "Hourly Temperature"}}),
     html.Div(id="summary-table", style={"maxWidth": "680px", "margin": "10px auto"}),
 
@@ -104,8 +104,7 @@ layout = html.Div(className="weatherPage clear", children=[
     Input("inputCountry", "value"),
     Input("TempSetting", "value"),
 )
-##Callback 1 — Fetch once, store everywhere
-def fetch_weather(city, country, tempUnit):  #### first callback 
+def fetch_weather(city, country, tempUnit):
     try:
         # Geocode
         location = placeFinder.geocode({"city": city, "country": country}, timeout=10)
@@ -201,9 +200,7 @@ def fetch_weather(city, country, tempUnit):  #### first callback
     Input("paramSettings", "value"),
     prevent_initial_call=False
 )
-### Callback 2 — Current card, icon, daily cards
-
-def render_current_and_cards(data, params): 
+def render_current_and_cards(data, params):
     if not data or "error" in data:
         msg = data.get("error", "No data") if isinstance(data, dict) else "No data"
         return html.Div(f"Error: {msg}", className="main-card"), [], html.Div()
@@ -263,8 +260,6 @@ def render_current_and_cards(data, params):
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
-
-##Callback 3 — Hourly temperature chart
 def render_hourly_chart(data):
     if not data or "error" in data:
         return {"data": [], "layout": {"title": "Hourly Temperature"}}
@@ -297,8 +292,6 @@ def render_hourly_chart(data):
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
-
-##Callback 4 — Location map
 def render_map(data):
     if not data or "error" in data:
         return {"data": [], "layout": {"title": "Location Map"}}
@@ -350,8 +343,6 @@ def render_map(data):
     Input("wx-data", "data"),
     prevent_initial_call=False
 )
-
-##Callback 5 — Summary table
 def render_summary_table(data):
     if not data or "error" in data:
         return html.Div("No summary available.")

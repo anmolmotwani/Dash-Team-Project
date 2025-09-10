@@ -9,7 +9,7 @@ layout = html.Div(
     children=[
         html.H1("Welcome to Weather Report 🌤️"),
         html.P("Type a city on the Weather Report page to see 3 days past & future weather."),
-        
+
         # Button that navigates to the Weather Report page
         html.Div(
             dcc.Link(
@@ -19,6 +19,8 @@ layout = html.Div(
             ),
             className="mt-3"
         ),
+
+        # Image carousel (Bootstrap)
         html.Div(
             dbc.Carousel(
                 items=[
@@ -42,12 +44,10 @@ layout = html.Div(
                     },
                 ],
                 controls=True,
-                interval = 3000,
+                interval=3000,
                 indicators=True,
-                class_name = "carousel",
-                variant='dark'
-                
-                
+                class_name="carousel",
+                variant="dark",
             )
         ),
     ]

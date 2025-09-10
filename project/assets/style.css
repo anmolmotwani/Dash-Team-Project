@@ -1,85 +1,85 @@
 /* ===== Base ===== */
-body { 
-    font-family: Arial, Helvetica, sans-serif;
-    margin: 0;
-    padding: 0;
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 /* ===== Navbar: match cards exact color (#073642) ===== */
 #main-navbar .navbar-brand,
 #main-navbar .nav-link {
-    color: rgba(255,255,255,0.85) !important;
+  color: rgba(255,255,255,0.85) !important;
 }
 #main-navbar .nav-link.active {
-    color: #ffffff !important;
-    font-weight: 600;
+  color: #ffffff !important;
+  font-weight: 600;
 }
 #main-navbar {
-    background-color: #073642 !important;
-    border-bottom: 1px solid rgba(147,161,161,0.35);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  background-color: #073642 !important;
+  border-bottom: 1px solid rgba(147,161,161,0.35);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 /* ===== Backgrounds ===== */
 .clear {
-    background: linear-gradient(to bottom, #87ceeb, #ffffff);
+  background: linear-gradient(to bottom, #87ceeb, #ffffff);
 }
 .cloudy {
-    background: linear-gradient(to bottom, #d7d7d7, #f0f0f0);
+  background: linear-gradient(to bottom, #d7d7d7, #f0f0f0);
 }
 .rainy {
-    background: linear-gradient(to bottom, #5f7c8a, #a0b5c3);
-    animation: rain 0.5s linear infinite;
-    background-size: 200% 200%;
+  background: linear-gradient(to bottom, #5f7c8a, #a0b5c3);
+  animation: rain 0.5s linear infinite;
+  background-size: 200% 200%;
 }
 @keyframes rain {
-    0%   { background-position: 0% 0%; }
-    100% { background-position: 100% 100%; }
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
 }
 
 /* Page padding */
 .weatherPage,
 .homePage {
-    min-height: 100vh;
-    padding: 24px;
-    box-sizing: border-box;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 /* ===== Cards ===== */
 .card {
-    border-radius: 15px;
-    padding: 15px;
-    margin: 10px auto;
-    width: 150px;
-    background-color: rgba(255,255,255,0.9);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    text-align: center;
-    flex-shrink: 0;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 10px auto;
+  width: 150px;
+  background-color: rgba(255,255,255,0.9);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  text-align: center;
+  flex-shrink: 0;
 }
 .main-card {
-    width: 300px;
-    background-color: rgba(255,255,255,0.95);
-    color: #111;
-    padding: 20px;
-    margin: 20px auto;
-    text-align: center;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  width: 300px;
+  background-color: rgba(255,255,255,0.95);
+  color: #111;
+  padding: 20px;
+  margin: 20px auto;
+  text-align: center;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Forecast strip */
 #forecast-cards {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    padding: 10px;
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 10px;
 }
 
 /* Headings legibility */
 .clear .main-card h2,
 .cloudy .main-card h2,
 .rainy .main-card h2 {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
 }
 
 /* ===================================================== */
@@ -87,11 +87,11 @@ body {
 /* ===================================================== */
 
 .weather-icon-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 96px;
-    margin: 6px 0 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 96px;
+  margin: 6px 0 12px;
 }
 
 /* Namespaced so we don't collide with Plotly toolbar icons */
@@ -99,32 +99,31 @@ body {
 
 /* --- Sun --- */
 .wx-icon.sun .sun-core {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 56px; height: 56px;
-    background: #fdd835;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 20px rgba(253,216,53,0.6);
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 56px; height: 56px;
+  background: #fdd835;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px rgba(253,216,53,0.6);
 }
 .wx-icon.sun .sun-rays {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 90px; height: 90px;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background:
-      radial-gradient(circle, transparent 34px, #fbc02d 35px, transparent 36px) no-repeat;
-    animation: icon-spin 8s linear infinite;
-    -webkit-mask: radial-gradient(circle at center, rgba(0,0,0,0) 34px, rgba(0,0,0,1) 34px);
-            mask: radial-gradient(circle at center, rgba(0,0,0,0) 34px, rgba(0,0,0,1) 34px);
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 90px; height: 90px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 34px, #fbc02d 35px, transparent 36px) no-repeat;
+  animation: icon-spin 8s linear infinite;
+  -webkit-mask: radial-gradient(circle at center, rgba(0,0,0,0) 34px, rgba(0,0,0,1) 34px);
+          mask: radial-gradient(circle at center, rgba(0,0,0,0) 34px, rgba(0,0,0,1) 34px);
 }
 
 /* --- Cloud --- */
 .wx-icon.cloud .cloud-bubble {
-    position: absolute;
-    background: #eceff1;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  position: absolute;
+  background: #eceff1;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 .wx-icon.cloud .b1 { width: 70px; height: 40px; border-radius: 40px; bottom: 30px; left: 20px; }
 .wx-icon.cloud .b2 { width: 45px; height: 45px; border-radius: 50%; bottom: 45px; left: 45px; }
@@ -133,36 +132,37 @@ body {
 
 /* --- Rain --- */
 .wx-icon.rain .cloud-bubble {
-    position: absolute;
-    background: #e0e6ea;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  position: absolute;
+  background: #e0e6ea;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 .wx-icon.rain .b1 { width: 70px; height: 40px; border-radius: 40px; bottom: 55px; left: 20px; }
 .wx-icon.rain .b2 { width: 45px; height: 45px; border-radius: 50%; bottom: 70px; left: 45px; }
 .wx-icon.rain .b3 { width: 55px; height: 55px; border-radius: 50%; bottom: 63px; left: 5px; }
 .wx-icon.rain .drop {
-    position: absolute;
-    bottom: 40px;
-    left: 45px;
-    width: 6px; height: 14px;
-    background: #4fc3f7;
-    border-radius: 3px 3px 50% 50%;
-    transform: rotate(10deg);
-    opacity: 0.95;
-    animation: raindrop 1s linear infinite;
+  position: absolute;
+  bottom: 40px;
+  left: 45px;
+  width: 6px; height: 14px;
+  background: #4fc3f7;
+  border-radius: 3px 3px 50% 50%;
+  transform: rotate(10deg);
+  opacity: 0.95;
+  animation: raindrop 1s linear infinite;
 }
 .wx-icon.rain .drop.d2 { left: 30px; animation-delay: 0.15s; }
 .wx-icon.rain .drop.d3 { left: 60px; animation-delay: 0.30s; }
 
 /* Icon animations */
 @keyframes icon-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-@keyframes floaty     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-@keyframes raindrop   {
-    0%   { transform: translateY(0) rotate(10deg); opacity: 0; }
-    10%  { opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(40px) rotate(10deg); opacity: 0; }
+@keyframes floaty   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes raindrop {
+  0%   { transform: translateY(0) rotate(10deg); opacity: 0; }
+  10%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(40px) rotate(10deg); opacity: 0; }
 }
+
 /* Home carousel spacing + rounded corners */
 .carousel {
   max-width: 900px;
